@@ -1,4 +1,4 @@
--- CREATE DATABASE IF NOT EXISTS canintel;
+-- CREATE DATABASE canintel;
 
 \c canintel
 
