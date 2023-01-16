@@ -37,4 +37,5 @@ class Env:
             "DB_NAME": self.DB_NAME,
             "DB_USER": self.DB_USER,
             "DB_PASSWORD": self.DB_PASSWORD,
+            "DATABASE_URL": self.DATABASE_URL,
         }

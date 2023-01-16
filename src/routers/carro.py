@@ -17,7 +17,7 @@ Base.metadata.create_all(bind=engine)
 
 
 @router.get("/carro", tags=["Carro"])
-def get_carro(placa: str, db: Session = Depends(get_db)):
+def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
     try:
         carro = db.query(Carro).filter(Carro.placa == placa).first()
         if carro:
