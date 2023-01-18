@@ -10,7 +10,7 @@ services:
     ports:
       - 5432:5432
 
-networks:
-  default:
-    name: canintel-network
-    external: True
+# networks:
+#   default:
+#     name: canintel-network
+#     external: True

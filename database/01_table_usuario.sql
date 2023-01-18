@@ -19,7 +19,7 @@ CREATE TABLE "public"."motorista" (
     "nome" VARCHAR(200) NOT NULL,
     "id_usuario" BIGINT NOT NULL,
     "matricula" VARCHAR(50),
-    CONSTRAINT "PK_motorista" PRIMARY KEY ("cpf", "id_usuario"),
+    CONSTRAINT "PK_motorista" PRIMARY KEY ("cpf"),
     CONSTRAINT "UQ_matricula" UNIQUE ("matricula"),
     CONSTRAINT "FK_usuario_motorista" FOREIGN KEY ("id_usuario") 
     REFERENCES "public"."usuario" ("id_usuario") 
@@ -32,10 +32,9 @@ CREATE TABLE "public"."carro" (
     "modelo" VARCHAR(50) NOT NULL,
     "marca" VARCHAR(50) NOT NULL,
     "cpf" VARCHAR(15) NOT NULL,
-    "id_usuario" BIGINT NOT NULL,
     CONSTRAINT "PK_carro" PRIMARY KEY ("placa"),
-    CONSTRAINT "FK_motorista_carro" FOREIGN KEY ("cpf", "id_usuario")
-    REFERENCES "public"."motorista" ("cpf", "id_usuario")
+    CONSTRAINT "FK_motorista_carro" FOREIGN KEY ("cpf")
+    REFERENCES "public"."motorista" ("cpf")
     ON DELETE RESTRICT
 );
 
@@ -48,3 +47,18 @@ CREATE TABLE "public"."estaciona" (
     REFERENCES "public"."carro" ("placa")
     ON DELETE CASCADE
 );
+
+-- Cria usuário admin 
+INSERT INTO public.usuario (email,senha,is_admin)
+	VALUES ('bigode@mail.com','123456',true);
+
+-- Cria usuário motorista
+INSERT INTO public.motorista (telefone,cpf,nome,id_usuario,matricula)
+	VALUES ('61 35520281','11111111111','Bigode',1,'180106970');
+
+-- Cria carro
+-- Auto-generated SQL script #202301181036
+INSERT INTO public.carro (placa,cor,modelo,marca,cpf)
+	VALUES ('RFS0D21','Branca','Kwid','Renault','11111111111');
+
+
