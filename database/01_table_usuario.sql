@@ -50,15 +50,29 @@ CREATE TABLE "public"."estaciona" (
 
 -- Cria usuário admin 
 INSERT INTO public.usuario (email,senha,is_admin)
-	VALUES ('bigode@mail.com','123456',true);
+	VALUES ('bigode@mail.com','123456',true),
+    ('rodoupho@mail.com','123456',false);
 
 -- Cria usuário motorista
-INSERT INTO public.motorista (telefone,cpf,nome,id_usuario,matricula)
-	VALUES ('61 35520281','11111111111','Bigode',1,'180106970');
+INSERT INTO public.motorista (telefone,cpf,nome,id_usuario,matricula) VALUES 
+('61 35520281','11111111111','Bigode',1,'180106970'),
+('61 3333441','22222222222','Rodoupho',2,'180106971');
 
 -- Cria carro
 -- Auto-generated SQL script #202301181036
-INSERT INTO public.carro (placa,cor,modelo,marca,cpf)
-	VALUES ('RFS0D21','Branca','Kwid','Renault','11111111111');
+INSERT INTO public.carro (placa,cor,modelo,marca,cpf) VALUES 
+('RFS0D21','Branca','Kwid','Renault','11111111111'),
+('KEE0987','Branca','Gol','Volkswagen','22222222222');
 
-
+-- Cria estacionamento
+-- Auto-generated SQL script #202301181036
+INSERT INTO public.estaciona (placa,entrada,saida)
+    VALUES 
+    ('RFS0D21','2021-01-18 10:36:00.000000','2021-01-18 11:36:00.000000'),
+    ('RFS0D21','2021-01-18 12:36:00.000000','2021-01-18 13:36:00.000000'),
+    ('RFS0D21','2021-01-18 14:36:00.000000','2021-01-18 15:36:00.000000'),
+    ('RFS0D21','2021-01-18 16:36:00.000000','2021-01-18 17:36:00.000000'),
+    ('KEE0987','2021-01-18 10:36:00.000000','2021-01-18 11:36:00.000000'),
+    ('KEE0987','2021-01-18 12:36:00.000000','2021-01-18 13:36:00.000000'),
+    ('KEE0987','2021-01-18 14:36:00.000000','2021-01-18 15:36:00.000000'),
+    ('KEE0987','2021-01-18 16:36:00.000000','2021-01-18 17:36:00.000000');

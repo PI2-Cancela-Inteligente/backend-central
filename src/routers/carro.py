@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from src.database import get_db, engine
-from src.models import Base, Carro, Motorista
+from src.models import Base, Carro, Motorista, Estaciona
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -34,10 +34,38 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
             carro = carro.to_dict()
             carro["motorista_nome"] = motorista.nome
             carro["motorista_matricula"] = motorista.matricula
+
+            estaciona = (
+                db.query(Estaciona)
+                .filter(Estaciona.placa == carro["placa"])
+                .all()
+            )
+            if estaciona:
+                carro["estacionamentos"] = [
+                    {
+                        "placa": estacionamento.placa,
+                        "entrada": estacionamento.entrada,
+                        "saida": estacionamento.saida,
+                    }
+                    for estacionamento in estaciona
+                ]
             return carro
         return {"message": "Carro não encontrado"}
     except Exception as e:
         return {"message": "Erro ao buscar carro", "error": str(e)}
+
+
+@router.get("/carros-motorista", tags=["Carro"])
+def get_carros_motorista(
+    cpf: str or None = None, db: Session = Depends(get_db)
+):
+    try:
+        carros = db.query(Carro).filter(Carro.cpf == cpf).all()
+        if carros:
+            return [carro.to_dict() for carro in carros]
+        return {"message": "Nenhum carro encontrado"}
+    except Exception as e:
+        return {"message": "Erro ao buscar carros", "error": str(e)}
 
 
 @router.get("/carro", tags=["Carro"])
