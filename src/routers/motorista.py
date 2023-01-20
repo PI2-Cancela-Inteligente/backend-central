@@ -108,3 +108,16 @@ def update_motorista(
         except Exception as e:
             return {"message": "Erro ao atualizar motorista", "error": str(e)}
     return {"message": "Motorista não encontrado"}
+
+
+@router.delete("/motorista", tags=["Motorista"])
+def delete_motorista(cpf: str, db: Session = Depends(get_db)):
+    motorista = db.query(Motorista).filter(Motorista.cpf == cpf).first()
+    if motorista:
+        try:
+            db.delete(motorista)
+            db.commit()
+            return {"message": "Motorista deletado com sucesso"}
+        except Exception as e:
+            return {"message": "Erro ao deletar motorista", "error": str(e)}
+    return {"message": "Motorista não encontrado"}

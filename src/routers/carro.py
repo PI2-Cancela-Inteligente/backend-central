@@ -38,6 +38,7 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
             estaciona = (
                 db.query(Estaciona)
                 .filter(Estaciona.placa == carro["placa"])
+                .order_by(Estaciona.entrada.desc())
                 .all()
             )
             if estaciona:
