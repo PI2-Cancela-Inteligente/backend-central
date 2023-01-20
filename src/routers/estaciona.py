@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
 from datetime import datetime
-from src.database import get_db, engine
-from src.models import Base, Estaciona, Carro
+from database import get_db, engine
+from models import Base, Estaciona, Carro
 
 router = APIRouter()
 

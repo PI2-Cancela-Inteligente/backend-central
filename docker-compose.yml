@@ -1,16 +1,23 @@
 version: "3"
 
 services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    env_file: .env
+    container_name: app
+    volumes:
+      - "./src/:/home/src/"
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      - db
   db:
     container_name: db
     image: postgres:13.2-alpine
-    env_file: ./config/.env
+    env_file: .env
     volumes:
       - ./database:/docker-entrypoint-initdb.d
     ports:
       - 5432:5432
-
-# networks:
-#   default:
-#     name: canintel-network
-#     external: True
