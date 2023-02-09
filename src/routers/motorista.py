@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database import get_db, engine
@@ -28,37 +28,56 @@ class MotoristaSchema(BaseModel):
 def get_motorista(cpf: str or None = None, db: Session = Depends(get_db)):
     try:
         if cpf:
-            motorista = (
-                db.query(Motorista).filter(Motorista.cpf == cpf).first()
-            )
+            motorista = db.query(Motorista).filter(Motorista.cpf == cpf).first()
             if motorista:
-                return motorista
-            return {"message": "Motorista não encontrado"}
+                return JSONResponse(
+                    status_code=status.HTTP_200_OK,
+                    content={
+                        "motorista": {
+                            "telefone": motorista.telefone,
+                            "cpf": motorista.cpf,
+                            "nome": motorista.nome,
+                            "id_usuario": motorista.id_usuario,
+                            "matricula": motorista.matricula,
+                        }
+                    },
+                )
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"message": "Motorista não encontrado"},
+            )
         else:
             motoristas = db.query(Motorista).all()
             if motoristas:
-                return [
-                    {
-                        "telefone": motorista.telefone,
-                        "cpf": motorista.cpf,
-                        "nome": motorista.nome,
-                        "id_usuario": motorista.id_usuario,
-                        "matricula": motorista.matricula,
-                    }
-                    for motorista in motoristas
-                ]
-            return {"message": "Nenhum motorista encontrado"}
+                return JSONResponse(
+                    status_code=status.HTTP_200_OK,
+                    content={
+                        "motoristas": [
+                            {
+                                "telefone": motorista.telefone,
+                                "cpf": motorista.cpf,
+                                "nome": motorista.nome,
+                                "id_usuario": motorista.id_usuario,
+                                "matricula": motorista.matricula,
+                            }
+                            for motorista in motoristas
+                        ]
+                    },
+                )
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"message": "Nenhum motorista encontrado"},
+            )
     except Exception as e:
-        return {"message": "Erro ao buscar motoristas", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
 
 
 @router.post("/motorista", tags=["Motorista"])
-def create_motorista(
-    motorista: MotoristaSchema, db: Session = Depends(get_db)
-):
-    usuario = (
-        db.query(Usuario).filter(Usuario.email == motorista.email).first()
-    )
+def create_motorista(motorista: MotoristaSchema, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.email == motorista.email).first()
     if not usuario:
         try:
             usuario = Usuario(
@@ -70,7 +89,10 @@ def create_motorista(
             db.commit()
             db.refresh(usuario)
         except Exception as e:
-            return {"message": "Erro ao criar usuario", "error": str(e)}
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"message": str(e)},
+            )
     try:
         motorista = Motorista(
             telefone=motorista.telefone,
@@ -82,18 +104,29 @@ def create_motorista(
         db.add(motorista)
         db.commit()
         db.refresh(motorista)
-        return motorista
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={
+                "message": "Motorista criado com sucesso",
+                "motorista": {
+                    "telefone": motorista.telefone,
+                    "cpf": motorista.cpf,
+                    "nome": motorista.nome,
+                    "id_usuario": motorista.id_usuario,
+                    "matricula": motorista.matricula,
+                },
+            },
+        )
     except Exception as e:
-        return {"message": "Erro ao criar motorista", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
 
 
 @router.put("/motorista", tags=["Motorista"])
-def update_motorista(
-    motorista: MotoristaSchema, db: Session = Depends(get_db)
-):
-    motorista_db = (
-        db.query(Motorista).filter(Motorista.cpf == motorista.cpf).first()
-    )
+def update_motorista(motorista: MotoristaSchema, db: Session = Depends(get_db)):
+    motorista_db = db.query(Motorista).filter(Motorista.cpf == motorista.cpf).first()
     if motorista_db:
         try:
             db.query(Motorista).filter(Motorista.cpf == motorista.cpf).update(
@@ -104,10 +137,20 @@ def update_motorista(
                 }
             )
             db.commit()
-            return {"message": "Motorista atualizado com sucesso"}
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Motorista atualizado com sucesso"},
+            )
+
         except Exception as e:
-            return {"message": "Erro ao atualizar motorista", "error": str(e)}
-    return {"message": "Motorista não encontrado"}
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"message": str(e)},
+            )
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"message": "Motorista não encontrado"},
+    )
 
 
 @router.delete("/motorista", tags=["Motorista"])
@@ -117,7 +160,16 @@ def delete_motorista(cpf: str, db: Session = Depends(get_db)):
         try:
             db.delete(motorista)
             db.commit()
-            return {"message": "Motorista deletado com sucesso"}
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Motorista deletado com sucesso"},
+            )
         except Exception as e:
-            return {"message": "Erro ao deletar motorista", "error": str(e)}
-    return {"message": "Motorista não encontrado"}
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"message": str(e)},
+            )
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"message": "Motorista não encontrado"},
+    )
