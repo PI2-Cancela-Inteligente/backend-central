@@ -42,9 +42,24 @@ CREATE TABLE "public"."estaciona" (
     "placa" VARCHAR(50) NOT NULL,
     "entrada" timestamp(6) with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "saida" timestamp(6) with time zone,
+    "valor" NUMERIC(10,2) NOT NULL DEFAULT 0,
     CONSTRAINT "PK_estaciona" PRIMARY KEY ("placa", "entrada"),
     CONSTRAINT "FK_carro_estaciona" FOREIGN KEY ("placa")
     REFERENCES "public"."carro" ("placa")
+    ON DELETE CASCADE
+);
+
+CREATE TABLE "public"."cartao"(
+    "id_cartao" BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY(START 1),
+    "numero" VARCHAR(50) NOT NULL,
+    "nome" VARCHAR(100) NOT NULL,
+    "validade" VARCHAR(10) NOT NULL,
+    "cvv" VARCHAR(10) NOT NULL,
+    "cpf" VARCHAR(15) NOT NULL,
+    CONSTRAINT "PK_cartao" PRIMARY KEY ("id_cartao"),
+    CONSTRAINT "UQ_numero" UNIQUE ("numero"),
+    CONSTRAINT "FK_motorista_cartao" FOREIGN KEY ("cpf")
+    REFERENCES "public"."motorista" ("cpf")
     ON DELETE CASCADE
 );
 

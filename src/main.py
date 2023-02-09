@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from routers import carro, usuario, estaciona, motorista
+from routers import carro, usuario, estaciona, motorista, cartao
 
 app = FastAPI()
 
@@ -16,6 +16,7 @@ app.include_router(carro.router, tags=["Carro"])
 app.include_router(usuario.router, tags=["Usuario"])
 app.include_router(estaciona.router, tags=["Estaciona"])
 app.include_router(motorista.router, tags=["Motorista"])
+app.include_router(cartao.router, tags=["Cartao"])
 
 
 @app.get("/", tags=["Root"])

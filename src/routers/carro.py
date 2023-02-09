@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,7 @@ class CarroSchema(BaseModel):
         orm_mode = True
 
 
-@router.get("/acesso-carro", tags=["Carro"])
+@router.get("/historico-carro", tags=["Carro"])
 def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
     try:
         carro = db.query(Carro).filter(Carro.placa == placa).first()
@@ -50,10 +50,12 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
                     }
                     for estacionamento in estaciona
                 ]
-            return carro
-        return {"message": "Carro não encontrado"}
+            return Response(status_code=200, content=carro)
+        return Response(
+            status_code=404, content={"message": "Carro não encontrado"}
+        )
     except Exception as e:
-        return {"message": "Erro ao buscar carro", "error": str(e)}
+        return Response(status_code=500, content={"message": str(e)})
 
 
 @router.get("/carros-motorista", tags=["Carro"])
@@ -63,21 +65,29 @@ def get_carros_motorista(
     try:
         carros = db.query(Carro).filter(Carro.cpf == cpf).all()
         if carros:
-            return [carro.to_dict() for carro in carros]
-        return {"message": "Nenhum carro encontrado"}
+            return Response(
+                status_code=200, content=[carro.to_dict() for carro in carros]
+            )
+        return Response(
+            status_code=404, content={"message": "Nenhum carro encontrado"}
+        )
+
     except Exception as e:
-        return {"message": "Erro ao buscar carros", "error": str(e)}
+        return Response(status_code=500, content={"message": str(e)})
 
 
 @router.get("/carro", tags=["Carro"])
-def get_carros(db: Session = Depends(get_db)):
+def get_carros(response: Response, db: Session = Depends(get_db)):
     try:
         carros = db.query(Carro).all()
         if carros:
-            return [carro.to_dict() for carro in carros]
+            response.status_code = 200
+            return {"carros": [carro.to_dict() for carro in carros]}
+        response.status_code = 404
         return {"message": "Nenhum carro encontrado"}
     except Exception as e:
-        return {"message": "Erro ao buscar carros", "error": str(e)}
+        response.status_code = 500
+        return {"message": str(e)}
 
 
 @router.post("/carro", tags=["Carro"])
@@ -87,9 +97,12 @@ def create_carro(carro: CarroSchema, db: Session = Depends(get_db)):
         db.add(carro)
         db.commit()
         db.refresh(carro)
-        return carro
+        return Response(status_code=201, content=carro.to_dict())
     except Exception as e:
-        return {"message": "Erro ao criar carro", "error": str(e)}
+        return Response(
+            status_code=500,
+            content={"message": "Erro ao criar carro", "error": str(e)},
+        )
 
 
 @router.put("/carro", tags=["Carro"])
@@ -100,9 +113,18 @@ def update_carro(
         carro = Carro(**carro.dict())
         db.query(Carro).filter(Carro.placa == placa).update(carro.to_dict())
         db.commit()
-        return carro
+        return Response(status_code=200, content=carro.to_dict())
     except Exception as e:
-        return {"message": "Erro ao atualizar carro", "error": str(e)}
+        return Response(
+            status_code=500,
+            content=Response(
+                status_code=500,
+                content={
+                    "message": "Erro ao atualizar carro",
+                    "error": str(e),
+                },
+            ),
+        )
 
 
 @router.delete("/carro", tags=["Carro"])
@@ -112,7 +134,18 @@ def delete_carro(placa: str, db: Session = Depends(get_db)):
         if carro:
             db.delete(carro)
             db.commit()
-            return carro
-        return {"message": "Carro não encontrado"}
+            return Response(
+                status_code=200,
+                content={
+                    "message": "Carro deletado",
+                    "carro": carro.to_dict(),
+                },
+            )
+        return Response(
+            status_code=404, content={"message": "Carro não encontrado"}
+        )
     except Exception as e:
-        return {"message": "Erro ao deletar carro", "error": str(e)}
+        return Response(
+            status_code=500,
+            content={"message": "Erro ao deletar carro", "error": str(e)},
+        )

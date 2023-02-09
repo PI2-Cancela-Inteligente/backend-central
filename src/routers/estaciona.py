@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -32,15 +32,28 @@ def post_estaciona(placa: EstacionaSchema, db: Session = Depends(get_db)):
             )
             if ultimo_estacionamento and ultimo_estacionamento.saida is None:
                 ultimo_estacionamento.saida = datetime.now()
+                ultimo_estacionamento.valor = (
+                    ultimo_estacionamento.valor_pagar()
+                )
                 db.commit()
-                return {"message": "Estacionamento Saída Realizada"}
+                return Response(
+                    status_code=201,
+                    content={"message": "Estacionamento Saída Realizada"},
+                )
             estaciona = Estaciona(placa=placa.placa)
             db.add(estaciona)
             db.commit()
-            return {"message": "Estacionamento Entrada Registrada"}
+
+            return Response(
+                status_code=201,
+                content={"message": "Estacionamento Entrada Realizada"},
+            )
         except Exception as e:
             return {
                 "message": "Erro ao registrar estacionamento",
                 "error": str(e),
             }
-    return {"message": "Carro não encontrado"}
+    # return 404 if car not found
+    return Response(
+        status_code=404, content={"message": "Carro não encontrado"}
+    )
