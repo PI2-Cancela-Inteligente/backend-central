@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from utils.hash import verify_password
+from utils.hash import verify_password, create_access_token
 from database import get_db, engine
 from models import Usuario, Base
 from pydantic import BaseModel
@@ -30,19 +30,20 @@ def login(usuario: UsuarioSchema, db: Session = Depends(get_db)):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     content={"message": "Senha incorreta"},
                 )
-            return JSONResponse(
+            access_token = create_access_token(data={"sub": usuario.email})
+            response = JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
-                    "message": "Usuário autenticado com sucesso",
-                    "usuario": {
-                        "id": usuario_query.id,
-                        "nome": usuario_query.nome,
-                        "email": usuario_query.email,
-                        "tipo": usuario_query.tipo,
-                    },
+                    "message": "Login realizado com sucesso",
+                    "token": access_token,
                 },
             )
-
+            response.set_cookie(
+                key="access_token",
+                value=f"Bearer {access_token}",
+                httponly=True,
+            )
+            return response
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Usuário não encontrado"},
