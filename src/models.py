@@ -149,7 +149,7 @@ class Cartao(Base):
         return {
             "id_cartao": self.id_cartao,
             "numero": self.numero,
-            "data_validade": self.data_validade,
+            "validade": self.validade,
             "cvv": self.cvv,
             "cpf": self.cpf,
         }

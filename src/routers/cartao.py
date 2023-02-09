@@ -17,7 +17,6 @@ class CartaoSchema(BaseModel):
     nome: str
     validade: str
     cvv: str
-    id_usuario: int
     cpf: str
 
     class Config:
@@ -92,4 +91,3 @@ def delete_cartao(numero: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": str(e)},
         )
-
