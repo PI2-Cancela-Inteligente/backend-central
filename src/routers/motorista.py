@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-
+from utils.hash import create_password_hash
 from database import get_db, engine
 from models import Base, Usuario, Motorista
 from pydantic import BaseModel
@@ -80,6 +80,7 @@ def create_motorista(motorista: MotoristaSchema, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.email == motorista.email).first()
     if not usuario:
         try:
+            motorista.senha = create_password_hash(motorista.senha)
             usuario = Usuario(
                 email=motorista.email,
                 senha=motorista.senha,
@@ -125,11 +126,13 @@ def create_motorista(motorista: MotoristaSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/motorista", tags=["Motorista"])
-def update_motorista(motorista: MotoristaSchema, db: Session = Depends(get_db)):
-    motorista_db = db.query(Motorista).filter(Motorista.cpf == motorista.cpf).first()
+def update_motorista(
+    cpf: str, motorista: MotoristaSchema, db: Session = Depends(get_db)
+):
+    motorista_db = db.query(Motorista).filter(Motorista.cpf == cpf).first()
     if motorista_db:
         try:
-            db.query(Motorista).filter(Motorista.cpf == motorista.cpf).update(
+            db.query(Motorista).filter(Motorista.cpf == cpf).update(
                 {
                     "telefone": motorista.telefone,
                     "nome": motorista.nome,
