@@ -30,20 +30,17 @@ def login(usuario: UsuarioSchema, db: Session = Depends(get_db)):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     content={"message": "Senha incorreta"},
                 )
-            access_token = create_access_token(data={"sub": usuario.email})
-            response = JSONResponse(
+            return JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
-                    "message": "Login realizado com sucesso",
-                    "token": access_token,
+                    "message": "Usuário autenticado com sucesso",
+                    "usuario": {
+                        "id_usuario": usuario_query.id_usuario,
+                        "email": usuario_query.email,
+                        "is_admin": usuario_query.is_admin,
+                    },
                 },
             )
-            response.set_cookie(
-                key="access_token",
-                value=f"Bearer {access_token}",
-                httponly=True,
-            )
-            return response
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Usuário não encontrado"},
