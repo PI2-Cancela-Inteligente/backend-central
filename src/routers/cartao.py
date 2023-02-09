@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Response
-
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database import get_db, engine
@@ -35,19 +35,23 @@ def get_cartao(
             cartao = db.query(Cartao).filter(Cartao.numero == numero).first()
             if cartao:
                 return cartao.to_dict()
-            return Response(
-                status_code=404, content={"message": "Cartão não encontrado"}
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"message": "Cartão não encontrado"},
             )
         elif cpf:
             cartoes = db.query(Cartao).filter(Cartao.cpf == cpf).all()
         else:
             cartoes = db.query(Cartao).all()
-        return Response(
-            status_code=200,
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
             content={"cartoes": [cartao.to_dict() for cartao in cartoes]},
         )
     except Exception as e:
-        return Response(status_code=500, content={"message": str(e)})
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
 
 
 @router.post("/cartao", tags=["Cartao"])
@@ -56,9 +60,15 @@ def post_cartao(cartao: CartaoSchema, db: Session = Depends(get_db)):
         cartao = Cartao(**cartao.dict())
         db.add(cartao)
         db.commit()
-        return Response(status_code=201, content={"message": "Cartão criado"})
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "Cartão criado"},
+        )
     except Exception as e:
-        return Response(status_code=500, content={"message": str(e)})
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
 
 
 @router.delete("/cartao", tags=["Cartao"])
@@ -68,11 +78,18 @@ def delete_cartao(numero: str, db: Session = Depends(get_db)):
         if cartao:
             db.delete(cartao)
             db.commit()
-            return Response(
-                status_code=200, content={"message": "Cartão deletado"}
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Cartão deletado"},
             )
-        return Response(
-            status_code=404, content={"message": "Cartão não encontrado"}
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Cartão não encontrado"},
         )
+
     except Exception as e:
-        return Response(status_code=500, content={"message": str(e)})
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
+

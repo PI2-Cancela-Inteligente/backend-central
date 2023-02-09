@@ -40,8 +40,8 @@ CREATE TABLE "public"."carro" (
 
 CREATE TABLE "public"."estaciona" (
     "placa" VARCHAR(50) NOT NULL,
-    "entrada" timestamp(6) with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "saida" timestamp(6) with time zone,
+    "entrada" timestamp(6) NOT NULL DEFAULT timezone('America/Sao_Paulo', current_timestamp),
+    "saida" timestamp(6) DEFAULt timezone('America/Sao_Paulo', current_timestamp),
     "valor" NUMERIC(10,2) NOT NULL DEFAULT 0,
     CONSTRAINT "PK_estaciona" PRIMARY KEY ("placa", "entrada"),
     CONSTRAINT "FK_carro_estaciona" FOREIGN KEY ("placa")

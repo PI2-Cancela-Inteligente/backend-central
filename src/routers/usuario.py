@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database import get_db, engine
@@ -26,10 +26,20 @@ def get_usuarios(db: Session = Depends(get_db)):
     try:
         usuarios = db.query(Usuario).all()
         if usuarios:
-            return [usuario.to_dict() for usuario in usuarios]
-        return {"message": "Nenhum usuario encontrado"}
+            # return [usuario.to_dict() for usuario in usuarios]
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"usuarios": [usuario.to_dict() for usuario in usuarios]},
+            )
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Nenhum usuario encontrado"},
+        )
     except Exception as e:
-        return {"message": "Erro ao buscar usuarios", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": str(e)},
+        )
 
 
 @router.post("/usuario", tags=["Usuario"])
@@ -39,9 +49,18 @@ def create_usuario(usuario: UsuarioSchema, db: Session = Depends(get_db)):
         db.add(usuario)
         db.commit()
         db.refresh(usuario)
-        return usuario.to_dict()
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={
+                "message": "Usuario criado com sucesso",
+                "usuario": usuario.to_dict(),
+            },
+        )
     except Exception as e:
-        return {"message": "Erro ao criar usuario", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Erro ao criar usuario", "error": str(e)},
+        )
 
 
 @router.put("/usuario", tags=["Usuario"])
@@ -51,31 +70,48 @@ def update_usuario(
     db: Session = Depends(get_db),
 ):
     try:
-        usuario = (
-            db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
-        )
+        usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
         if usuario:
             usuario.email = usuarioSchema.email
             if usuarioSchema.senha:
                 usuario.senha = usuarioSchema.senha
             usuario.is_admin = usuarioSchema.is_admin
             db.commit()
-            return usuario.to_dict()
-        return {"message": "Usuario não encontrado"}
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "message": "Usuario atualizado com sucesso",
+                    "usuario": usuario.to_dict(),
+                },
+            )
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Usuario não encontrado"},
+        )
     except Exception as e:
-        return {"message": "Erro ao atualizar usuario", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Erro ao atualizar usuario", "error": str(e)},
+        )
 
 
 @router.delete("/usuario", tags=["Usuario"])
 def delete_usuario(id_usuario: int, db: Session = Depends(get_db)):
     try:
-        usuario = (
-            db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
-        )
+        usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
         if usuario:
             db.delete(usuario)
             db.commit()
-            return {"message": "Usuario deletado com sucesso"}
-        return {"message": "Usuario não encontrado"}
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "Usuario deletado com sucesso"},
+            )
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Usuario não encontrado"},
+        )
     except Exception as e:
-        return {"message": "Erro ao deletar usuario", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Erro ao deletar usuario", "error": str(e)},
+        )

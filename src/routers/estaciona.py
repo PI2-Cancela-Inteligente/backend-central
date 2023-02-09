@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Response
-
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 from database import get_db, engine
@@ -32,28 +32,26 @@ def post_estaciona(placa: EstacionaSchema, db: Session = Depends(get_db)):
             )
             if ultimo_estacionamento and ultimo_estacionamento.saida is None:
                 ultimo_estacionamento.saida = datetime.now()
-                ultimo_estacionamento.valor = (
-                    ultimo_estacionamento.valor_pagar()
-                )
+                ultimo_estacionamento.valor = ultimo_estacionamento.valor_pagar()
                 db.commit()
-                return Response(
-                    status_code=201,
+                return JSONResponse(
+                    status_code=status.HTTP_201_CREATED,
                     content={"message": "Estacionamento Saída Realizada"},
                 )
-            estaciona = Estaciona(placa=placa.placa)
+            estaciona = Estaciona(placa=placa.placa, valor=0)
             db.add(estaciona)
             db.commit()
-
-            return Response(
-                status_code=201,
+            return JSONResponse(
+                status_code=status.HTTP_201_CREATED,
                 content={"message": "Estacionamento Entrada Realizada"},
             )
         except Exception as e:
-            return {
-                "message": "Erro ao registrar estacionamento",
-                "error": str(e),
-            }
-    # return 404 if car not found
-    return Response(
-        status_code=404, content={"message": "Carro não encontrado"}
+
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"message": str(e)},
+            )
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"message": "Carro não encontrado"},
     )

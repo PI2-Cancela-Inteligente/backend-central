@@ -8,7 +8,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
+import pytz
 from database import Base
 
 
@@ -99,10 +99,13 @@ class Estaciona(Base):
     valor = Column(BigInteger, nullable=False)
 
     def to_dict(self):
+        tz = pytz.timezone("America/Sao_Paulo")
+        entrada = self.entrada.astimezone(tz)
+        saida = self.saida.astimezone(tz) if self.saida else None
         return {
             "placa": self.placa,
-            "entrada": self.entrada,
-            "saida": self.saida,
+            "entrada": entrada,
+            "saida": saida,
             "valor": self.valor,
         }
 
@@ -112,10 +115,15 @@ class Estaciona(Base):
         valor_segundo = 0.0014
         valor_total = 0
         if self.saida:
-            tempo = self.saida - self.entrada
-            valor_total += tempo.seconds * valor_segundo
-            valor_total += tempo.minutes * valor_minuto
-            valor_total += tempo.hours * valor_hora
+            tempo = (
+                self.saida.replace(tzinfo=pytz.UTC)
+                - self.entrada.replace(tzinfo=pytz.UTC)
+            ).total_seconds()
+            horas, resto = divmod(tempo, 3600)
+            minutos, segundos = divmod(resto, 60)
+            valor_total = (
+                horas * valor_hora + minutos * valor_minuto + segundos * valor_segundo
+            )
         return valor_total
 
 
