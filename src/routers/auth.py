@@ -23,7 +23,7 @@ class UsuarioSchema(BaseModel):
 def login(usuario: UsuarioSchema, db: Session = Depends(get_db)):
     try:
         usuario_query = db.query(Usuario).filter(Usuario.email == usuario.email).first()
-        if usuario:
+        if usuario_query:
             correct_password = verify_password(usuario.senha, usuario_query.senha)
             if not correct_password:
                 return JSONResponse(
