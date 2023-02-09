@@ -63,31 +63,13 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
         )
 
 
-@router.get("/carros-motorista", tags=["Carro"])
-def get_carros_motorista(cpf: str or None = None, db: Session = Depends(get_db)):
-    try:
-        carros = db.query(Carro).filter(Carro.cpf == cpf).all()
-        if carros:
-            return JSONResponse(
-                status_code=status.HTTP_200_OK,
-                content=[carro.to_dict() for carro in carros],
-            )
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Nenhum carro encontrado"},
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": str(e)},
-        )
-
-
 @router.get("/carro", tags=["Carro"])
-def get_carros(db: Session = Depends(get_db)):
+def get_carros(cpf: str or None = None, db: Session = Depends(get_db)):
     try:
-        carros = db.query(Carro).all()
+        if cpf:
+            carros = db.query(Carro).filter(Carro.cpf == cpf).all()
+        else:
+            carros = db.query(Carro).all()
         if carros:
             return JSONResponse(
                 status_code=status.HTTP_200_OK,

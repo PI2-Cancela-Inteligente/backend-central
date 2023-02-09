@@ -11,6 +11,7 @@ class Env:
     MAIL_FROM = os.getenv("MAIL_FROM")
     MAIL_PORT = os.getenv("MAIL_PORT")
     MAIL_SERVER = os.getenv("MAIL_SERVER")
+    SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
     DB_HOST = os.getenv("POSTGRES_HOST")
     DB_PORT = os.getenv("POSTGRES_PORT")
