@@ -51,6 +51,8 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
                     }
                     for estacionamento in estaciona
                 ]
+            else:
+                carro["estacionamentos"] = []
             return JSONResponse(status_code=status.HTTP_200_OK, content=carro)
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
