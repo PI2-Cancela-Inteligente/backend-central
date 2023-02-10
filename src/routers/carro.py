@@ -47,7 +47,7 @@ def get_carro(placa: str or None = None, db: Session = Depends(get_db)):
                         "saida": estacionamento.saida.strftime("%d/%m/%Y %H:%M:%S")
                         if estacionamento.saida
                         else None,
-                        "valor": str(estacionamento.valor),
+                        "valor": float(estacionamento.valor),
                     }
                     for estacionamento in estaciona
                 ]
