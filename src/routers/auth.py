@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from utils.hash import verify_password, create_access_token
 from database import get_db, engine
-from models import Usuario, Base
+from models import Usuario, Base, Motorista
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -30,6 +30,11 @@ def login(usuario: UsuarioSchema, db: Session = Depends(get_db)):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     content={"message": "Senha incorreta"},
                 )
+            dados_motorista = (
+                db.query(Motorista)
+                .filter(Motorista.id_usuario == usuario_query.id_usuario)
+                .first()
+            )
             return JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
@@ -38,6 +43,10 @@ def login(usuario: UsuarioSchema, db: Session = Depends(get_db)):
                         "id_usuario": usuario_query.id_usuario,
                         "email": usuario_query.email,
                         "is_admin": usuario_query.is_admin,
+                        "telefone": dados_motorista.telefone,
+                        "cpf": dados_motorista.cpf,
+                        "nome": dados_motorista.nome,
+                        "matricula": dados_motorista.matricula,
                     },
                 },
             )
