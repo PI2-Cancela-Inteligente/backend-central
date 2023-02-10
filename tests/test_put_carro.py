@@ -1,8 +1,8 @@
 def test_put_carro(client):
     response = client.put(
-        "/carro?placa=RFS0D21",
+        "/carro?placa=HUA9876",
         json={
-            "placa": "RFS0D21",
+            "placa": "HUA9876",
             "cor": "Preto",
             "modelo": "Gol",
             "marca": "Volkswagen",

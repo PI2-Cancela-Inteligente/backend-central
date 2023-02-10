@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
 try:
     sys.path.append(os.getcwd() + "/src")
 except Exception:
@@ -15,12 +16,8 @@ import models
 from database import get_db
 from main import app
 
-engine = create_engine(
-    "sqlite:///test.db", connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
-)
+engine = create_engine("sqlite:///test.db", connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -42,6 +39,9 @@ def session():
         session.commit()
 
     with open("tests/data/insert_estaciona.sql", "r") as f:
+        session.execute(f.read())
+        session.commit()
+    with open("tests/data/insert_cartao.sql", "r") as f:
         session.execute(f.read())
         session.commit()
 

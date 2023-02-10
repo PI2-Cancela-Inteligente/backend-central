@@ -33,7 +33,12 @@ def get_cartao(
         if numero:
             cartao = db.query(Cartao).filter(Cartao.numero == numero).first()
             if cartao:
-                return cartao.to_dict()
+                return JSONResponse(
+                    status_code=status.HTTP_200_OK,
+                    content={
+                        "cartao": {"numero": cartao.numero[-4:], "nome": cartao.nome}
+                    },
+                )
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
                 content={"message": "Cartão não encontrado"},
@@ -44,7 +49,12 @@ def get_cartao(
             cartoes = db.query(Cartao).all()
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content={"cartoes": [cartao.to_dict() for cartao in cartoes]},
+            content={
+                "cartoes": [
+                    {"numero": cartao.numero[-4:], "nome": cartao.nome}
+                    for cartao in cartoes
+                ]
+            },
         )
     except Exception as e:
         return JSONResponse(
@@ -56,6 +66,12 @@ def get_cartao(
 @router.post("/cartao", tags=["Cartao"])
 def post_cartao(cartao: CartaoSchema, db: Session = Depends(get_db)):
     try:
+        existente = db.query(Cartao).filter(Cartao.numero == cartao.numero).first()
+        if existente:
+            return JSONResponse(
+                status_code=status.HTTP_409_CONFLICT,
+                content={"message": "Cartão já cadastrado"},
+            )
         cartao = Cartao(**cartao.dict())
         db.add(cartao)
         db.commit()

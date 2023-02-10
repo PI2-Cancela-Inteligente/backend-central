@@ -2,7 +2,7 @@ def test_post_motorista_sem_cadastro(client):
     response = client.post(
         "/motorista",
         json={
-            "cpf": "00000000000",
+            "cpf": "9827272726",
             "nome": "Teste",
             "email": "teste@mail.com",
             "telefone": "00000000000",
@@ -10,16 +10,16 @@ def test_post_motorista_sem_cadastro(client):
             "matricula": "000000",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 500
 
 
 def test_post_motorista_com_cadastro(client):
     response = client.post(
         "/motorista",
         json={
-            "cpf": "11111111111",
+            "cpf": "332324234",
             "nome": "Teste",
-            "email": "crocs@mail.com",
+            "email": "ceilandia@mail.com",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 201

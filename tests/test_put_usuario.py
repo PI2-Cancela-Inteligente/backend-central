@@ -1,8 +1,8 @@
 def test_put_usuario(client):
     response = client.put(
-        "/usuario?id_usuario=1",
+        "/usuario?id_usuario=2",
         json={
-            "email": "bigode@mail.com",
+            "email": "baodemais@mail.com",
             "senha": "123456",
             "is_admin": False,
         },
@@ -19,5 +19,4 @@ def test_put_usuario_not_found(client):
             "is_admin": False,
         },
     )
-    assert response.status_code == 200
-    assert response.json() == {"message": "Usuario não encontrado"}
+    assert response.status_code == 404

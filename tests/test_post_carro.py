@@ -9,7 +9,7 @@ def test_post_carro(client):
             "cpf": "22222222222",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
 def test_post_carro_sem_cpf(client):

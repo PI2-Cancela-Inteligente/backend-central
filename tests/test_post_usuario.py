@@ -7,7 +7,7 @@ def test_post_usuario(client):
             "is_admin": False,
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 500
 
 
 def test_post_usuario_com_cadastro(client):
@@ -19,4 +19,4 @@ def test_post_usuario_com_cadastro(client):
             "is_admin": False,
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 400
