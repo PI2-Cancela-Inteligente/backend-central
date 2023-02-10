@@ -89,6 +89,7 @@ def get_carros(cpf: str or None = None, db: Session = Depends(get_db)):
 @router.post("/carro", tags=["Carro"])
 def create_carro(carro: CarroSchema, db: Session = Depends(get_db)):
     try:
+        carro.placa = carro.placa.upper()
         carro = Carro(**carro.dict())
         db.add(carro)
         db.commit()
