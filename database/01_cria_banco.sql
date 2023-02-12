@@ -66,12 +66,14 @@ CREATE TABLE "public"."cartao"(
 -- Cria usuário admin 
 INSERT INTO public.usuario (email,senha,is_admin)
 	VALUES ('bigode@mail.com','123456',true),
-    ('rodoupho@mail.com','123456',false);
+    ('rodoupho@mail.com','123456',false),
+    ('temporario@mail.com','123456',false);
 
 -- Cria usuário motorista
 INSERT INTO public.motorista (telefone,cpf,nome,id_usuario,matricula) VALUES 
 ('61 35520281','11111111111','Bigode',1,'180106970'),
-('61 3333441','22222222222','Rodoupho',2,'180106971');
+('61 3333441','22222222222','Rodoupho',2,'180106971'),
+('61 00000000','00000000000','Temporario',3, NULL);
 
 -- Cria carro
 -- Auto-generated SQL script #202301181036

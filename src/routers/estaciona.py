@@ -10,6 +10,7 @@ router = APIRouter()
 
 
 Base.metadata.create_all(bind=engine)
+contador_placas = {}
 
 
 class EstacionaSchema(BaseModel):
@@ -51,6 +52,37 @@ def post_estaciona(placa: EstacionaSchema, db: Session = Depends(get_db)):
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={"message": str(e)},
             )
+    else:
+        if placa.placa in contador_placas:
+            contador_placas[placa.placa] += 1
+        else:
+            contador_placas[placa.placa] = 1
+        if contador_placas[placa.placa] == 10:
+            try:
+                novo_carro = Carro(
+                    placa=placa.placa,
+                    cor="Temporario",
+                    modelo="Temporario",
+                    marca="Temporario",
+                    cpf="00000000000",
+                )
+                db.add(novo_carro)
+                db.commit()
+                contador_placas.clear()
+                estaciona = Estaciona(placa=placa.placa, valor=0)
+                db.add(estaciona)
+                db.commit()
+
+                return JSONResponse(
+                    status_code=status.HTTP_201_CREATED,
+                    content={"message": "Estacionamento Entrada Realizada"},
+                )
+            except Exception as e:
+                return JSONResponse(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    content={"message": str(e)},
+                )
+
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"message": "Carro não encontrado"},
